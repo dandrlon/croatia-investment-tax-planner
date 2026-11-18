@@ -1,0 +1,49 @@
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.position-row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-container);
+  }
+}
+
+// Collapsed detail rows take no space.
+.detail-row:not(.open) td {
+  padding: 0;
+  border-bottom-width: 0;
+}
+
+
+.detail {
+  width: 100%;
+  margin: 4px 0 12px;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  th,
+  td {
+    padding: 4px 8px;
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+}
