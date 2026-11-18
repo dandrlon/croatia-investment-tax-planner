@@ -1,11 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using TaxPlanner.Api.Services;
+using TaxPlanner.Core;
 using TaxPlanner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
+{
+    document.Info.Title = "Croatian Investment Tax Planner API";
+    document.Info.Description =
+        $"Dividend tax and capital gains exemption dates for Trading 212 exports. **{Disclaimer.Text}**";
+    return Task.CompletedTask;
+}));
 builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<TaxPlannerDbContext>(options => options.UseSqlServer(
@@ -24,7 +31,9 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider.GetRequiredService<TaxPlannerDbContext>().Database.MigrateAsync();
 }
 
+// Swagger is on in every environment: this is a single-user app that runs locally.
 app.MapOpenApi();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Tax Planner API"));
 app.MapControllers();
 
 app.Run();
