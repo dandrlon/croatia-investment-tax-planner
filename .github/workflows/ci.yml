@@ -16,6 +16,22 @@ jobs:
       - run: dotnet build --no-restore -c Release
       - run: dotnet test --no-build -c Release
 
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/TaxPlanner.Web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: src/TaxPlanner.Web/package-lock.json
+      - run: npm ci
+      - run: npx ng test --watch=false
+      - run: npx ng build
+
   docker:
     runs-on: ubuntu-latest
     steps:
