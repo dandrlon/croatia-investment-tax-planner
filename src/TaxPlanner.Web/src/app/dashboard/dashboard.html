@@ -1,0 +1,49 @@
+<main class="page">
+  <h1>Croatian Investment Tax Planner</h1>
+
+  @switch (state()) {
+    @case ('loading') {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @case ('error') {
+      <section class="error" role="alert">
+        <p>Could not load your data.</p>
+        <button mat-flat-button type="button" class="retry" (click)="load()">Retry</button>
+      </section>
+    }
+
+    @case ('empty') {
+      <app-import-bar [summary]="null" (uploaded)="onUploaded()" />
+      <section class="empty">
+        <h2>Upload your first Trading 212 export</h2>
+        <p>
+          In Trading 212, open History → Export history, choose the full date range, include orders and dividends,
+          and download the CSV.
+        </p>
+      </section>
+    }
+
+    @case ('ready') {
+      <app-import-bar [summary]="latest()" (uploaded)="onUploaded()" />
+      <app-warnings-panel [warnings]="warnings()" />
+      <app-summary-tiles [years]="dividends()!.years" [positions]="positions()!.positions" [year]="year" />
+
+      <section>
+        <h2>Dividends by year</h2>
+        <app-dividends-table [years]="dividends()!.years" />
+      </section>
+
+      <section>
+        <h2>Positions</h2>
+        <app-positions-table [positions]="positions()!.positions" />
+      </section>
+    }
+  }
+
+  @if (dividends(); as d) {
+    @if (state() === 'empty' || state() === 'ready') {
+      <footer>{{ d.disclaimer }}</footer>
+    }
+  }
+</main>
