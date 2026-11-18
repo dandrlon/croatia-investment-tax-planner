@@ -173,4 +173,42 @@ public class Trading212CsvParserTests
             CultureInfo.CurrentCulture = previous;
         }
     }
+
+    [Fact]
+    public void Withholding_in_a_currency_other_than_eur_or_the_price_currency_is_a_row_error()
+    {
+        // The exchange rate is for the price currency (USD), so it cannot convert GBP.
+        var r = Parse(Row(action: "Dividend (Ordinary)", withholding: "1.00", withholdingCurrency: "GBP"));
+        Assert.Empty(r.Transactions);
+        Assert.Contains("GBP", Assert.Single(r.Errors).Message);
+    }
+
+    [Fact]
+    public void Withholding_without_a_currency_is_a_row_error()
+        => Assert.Single(Parse(Row(action: "Dividend (Ordinary)", withholding: "1.00", withholdingCurrency: "")).Errors);
+
+    [Theory]
+    [InlineData("Market buy", "0")]
+    [InlineData("Market buy", "-1")]
+    [InlineData("Market sell", "0")]
+    [InlineData("Market sell", "-2")]
+    public void Trade_with_non_positive_quantity_is_a_row_error(string action, string shares)
+    {
+        var r = Parse(Row(action: action, shares: shares));
+        Assert.Empty(r.Transactions);
+        Assert.Equal(2, Assert.Single(r.Errors).Line);
+    }
+
+    [Fact]
+    public void Negative_total_is_a_row_error()
+        => Assert.Single(Parse(Row(total: "-100.00")).Errors);
+
+    [Fact]
+    public void Thousands_separator_is_rejected_instead_of_misread()
+    {
+        // "12,5" from a Croatian spreadsheet must not silently become 125.
+        var r = Parse(Row(shares: "\"12,5\""));
+        Assert.Empty(r.Transactions);
+        Assert.Single(r.Errors);
+    }
 }

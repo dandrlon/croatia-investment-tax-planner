@@ -31,7 +31,8 @@ public static class SaleEstimator
 {
     public static SaleEstimate Estimate(LotMatchResult lots, IReadOnlyDictionary<string, decimal> pricesEurByIsin, DateOnly today)
     {
-        var warnings = new List<string>();
+        // Keep the lot matcher's warnings: an incomplete history makes this estimate incomplete too.
+        var warnings = new List<string>(lots.Warnings);
         var positions = new List<PositionEstimate>();
 
         foreach (var position in lots.OpenLots.GroupBy(l => l.Isin))

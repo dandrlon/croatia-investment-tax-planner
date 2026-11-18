@@ -96,4 +96,11 @@ public class SaleEstimatorTests
     [Fact]
     public void Fully_exempt_position_has_no_next_exemption_date()
         => Assert.Null(Estimate([Lot(A, "2023-01-10", 1, 10)], new() { [A] = 11 }).Positions.Single().NextExemptionDate);
+
+    [Fact]
+    public void Lot_matching_warnings_are_carried_into_the_estimate()
+    {
+        var lots = new LotMatchResult([Lot(A, "2025-06-01", 1, 10)], [], ["history may be incomplete"]);
+        Assert.Contains("history may be incomplete", SaleEstimator.Estimate(lots, new Dictionary<string, decimal> { [A] = 11 }, Today).Warnings);
+    }
 }

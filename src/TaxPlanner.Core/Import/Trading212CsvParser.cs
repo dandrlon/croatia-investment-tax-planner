@@ -78,7 +78,16 @@ public static class Trading212CsvParser
         if (!string.Equals(totalCurrency, "EUR", StringComparison.OrdinalIgnoreCase))
             throw new FormatException($"Total is in '{totalCurrency}'. Only EUR accounts are supported in this version.");
 
+        var quantity = row.RequiredNumber("No. of shares");
+        if (type is TransactionType.Buy or TransactionType.Sell && quantity <= 0)
+            throw new FormatException($"No. of shares must be greater than zero for a {type.ToString().ToLowerInvariant()}, but is {quantity}.");
+
+        var total = row.RequiredNumber("Total");
+        if (total < 0)
+            throw new FormatException($"Total must not be negative, but is {total}.");
+
         var exchangeRate = row.Number("Exchange rate");
+        var priceCurrency = row.OptionalText("Currency (Price / share)");
         var withholding = row.Number("Withholding tax") is { } w ? Math.Abs(w) : (decimal?)null;
         var withholdingCurrency = row.OptionalText("Currency (Withholding tax)");
 
@@ -89,24 +98,31 @@ public static class Trading212CsvParser
             Isin = row.Text("ISIN"),
             Ticker = row.Text("Ticker"),
             Name = row.Text("Name"),
-            Quantity = row.RequiredNumber("No. of shares"),
+            Quantity = quantity,
             PricePerShare = row.Number("Price / share"),
-            PriceCurrency = row.OptionalText("Currency (Price / share)"),
+            PriceCurrency = priceCurrency,
             ExchangeRate = exchangeRate,
-            TotalEur = row.RequiredNumber("Total"),
+            TotalEur = total,
             WithholdingTax = withholding,
             WithholdingTaxCurrency = withholdingCurrency,
-            WithholdingTaxEur = ToEur(withholding, withholdingCurrency, exchangeRate),
+            WithholdingTaxEur = WithholdingToEur(withholding, withholdingCurrency, priceCurrency, exchangeRate),
             SourceHash = Hash(row),
             SourceLine = line,
         };
     }
 
-    /// <summary>Trading 212's exchange rate is units of instrument currency per 1 EUR.</summary>
-    private static decimal ToEur(decimal? amount, string? currency, decimal? exchangeRate)
+    /// <summary>
+    /// Converts withholding tax to EUR. The row's exchange rate is units of the price currency
+    /// per 1 EUR, so it can only convert an amount in that same currency.
+    /// </summary>
+    private static decimal WithholdingToEur(decimal? amount, string? currency, string? priceCurrency, decimal? exchangeRate)
     {
         if (amount is null or 0) return 0;
+        if (currency is null)
+            throw new FormatException("Withholding tax has no currency.");
         if (string.Equals(currency, "EUR", StringComparison.OrdinalIgnoreCase)) return amount.Value;
+        if (!string.Equals(currency, priceCurrency, StringComparison.OrdinalIgnoreCase))
+            throw new FormatException($"Withholding tax is in '{currency}' but the exchange rate is for '{priceCurrency}', so it cannot be converted to EUR.");
         if (exchangeRate is null or 0)
             throw new FormatException($"Withholding tax is in '{currency}' but the row has no exchange rate to convert it to EUR.");
         return amount.Value / exchangeRate.Value;
@@ -138,7 +154,10 @@ public static class Trading212CsvParser
         {
             var text = OptionalText(column);
             if (text is null) return null;
-            if (decimal.TryParse(text, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var value))
+            // No thousands separator: a "12,5" from a Croatian spreadsheet must fail, not become 125.
+            const NumberStyles styles = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
+                | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+            if (decimal.TryParse(text, styles, CultureInfo.InvariantCulture, out var value))
                 return value;
             throw new FormatException($"'{text}' in column '{column}' is not a number.");
         }
