@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TaxPlanner.Core/TaxPlanner.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TaxPlanner.Core.Tests/TaxPlanner.Core.Tests.csproj" />
+  </Folder>
+</Solution>
