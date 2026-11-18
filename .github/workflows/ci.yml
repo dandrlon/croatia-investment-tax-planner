@@ -36,5 +36,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build the API image
+      - name: Build the API and web images
         run: MSSQL_SA_PASSWORD=unused docker compose build
