@@ -34,8 +34,12 @@ export class Dashboard {
     this.load();
   }
 
+  /**
+   * Loads the last import and both reports. The page shows the spinner only when it has nothing
+   * to show yet; a reload after an upload keeps the current page (and the upload result) on screen.
+   */
   load(): void {
-    this.state.set('loading');
+    if (this.state() === 'error') this.state.set('loading');
     forkJoin({
       latest: this.api.getLatestImport(),
       dividends: this.api.getDividends(),

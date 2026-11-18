@@ -10,7 +10,7 @@
     </ng-container>
     <ng-container matColumnDef="shares">
       <th mat-header-cell *matHeaderCellDef class="num">Shares</th>
-      <td mat-cell *matCellDef="let r" class="num">{{ r.position.quantity }}</td>
+      <td mat-cell *matCellDef="let r" class="num">{{ formatQuantity(r.position.quantity) }}</td>
     </ng-container>
     <ng-container matColumnDef="nextTaxFree">
       <th mat-header-cell *matHeaderCellDef>Next tax-free date</th>
@@ -31,7 +31,7 @@
             @for (lot of r.position.lots; track $index) {
               <tr class="lot">
                 <td>{{ formatIsoDate(lot.acquiredOn) }}</td>
-                <td class="num">{{ lot.quantity }}</td>
+                <td class="num">{{ formatQuantity(lot.quantity) }}</td>
                 <td class="num">{{ formatEur(lot.costEur) }}</td>
                 <td>{{ formatIsoDate(lot.exemptFrom) }}</td>
                 <td>
@@ -47,7 +47,18 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let r; columns: columns" class="position-row" (click)="toggle(r.position.isin)"></tr>
+    <tr
+      mat-row
+      *matRowDef="let r; columns: columns"
+      class="position-row"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="expanded().has(r.position.isin)"
+      [class.open]="expanded().has(r.position.isin)"
+      (click)="toggle(r.position.isin)"
+      (keydown.enter)="toggle(r.position.isin)"
+      (keydown.space)="$event.preventDefault(); toggle(r.position.isin)"
+    ></tr>
     <tr mat-row *matRowDef="let r; columns: ['detail']" class="detail-row" [class.open]="expanded().has(r.position.isin)"></tr>
   </table>
 </div>

@@ -1,10 +1,19 @@
-import { formatEur, formatIsoDate, formatTimestamp } from './format';
+import { formatEur, formatIsoDate, formatQuantity, formatTimestamp } from './format';
 
 describe('formatEur', () => {
   it('formats euros with two decimals', () => {
     expect(formatEur(14.62)).toBe('€14.62');
     expect(formatEur(0)).toBe('€0.00');
     expect(formatEur(1234.5)).toBe('€1,234.50');
+  });
+});
+
+describe('formatQuantity', () => {
+  it('rounds away floating-point noise from fractional shares', () => {
+    expect(formatQuantity(0.1 + 0.2)).toBe('0.3');
+    expect(formatQuantity(1.5)).toBe('1.5');
+    expect(formatQuantity(0.1234567)).toBe('0.123457');
+    expect(formatQuantity(1234)).toBe('1,234');
   });
 });
 

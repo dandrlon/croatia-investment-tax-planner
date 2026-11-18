@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PositionsTable } from './positions-table';
-import { vhyl, vusaAllExempt } from '../shared/test-data';
+import { lot, position, vhyl, vusaAllExempt } from '../shared/test-data';
 
 describe('PositionsTable', () => {
   let fixture: ComponentFixture<PositionsTable>;
@@ -19,6 +19,24 @@ describe('PositionsTable', () => {
     expect(rows()[0].textContent).toContain('all exempt');
     expect(rows()[1].textContent).toContain('VHYL');
     expect(rows()[1].textContent).toContain('3 Mar 2027 (15 sh)');
+  });
+
+  it('shows fractional shares without floating-point noise', () => {
+    fixture.componentRef.setInput('positions', [position('VWCE', [lot('2027-03-03', 0.1), lot('2027-03-03', 0.2)])]);
+    fixture.detectChanges();
+    expect(rows()[0].textContent).toContain('3 Mar 2027 (0.3 sh)');
+    expect(rows()[0].textContent).not.toContain('0.30000000000000004');
+  });
+
+  it('expands a position with the keyboard', () => {
+    const row = rows()[1];
+    expect(row.getAttribute('tabindex')).toBe('0');
+    expect(row.getAttribute('aria-expanded')).toBe('false');
+
+    row.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    fixture.detectChanges();
+    expect(el().querySelectorAll('.lot').length).toBe(4);
+    expect(row.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('expands a position to its lots on click', () => {

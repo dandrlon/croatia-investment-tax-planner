@@ -2,7 +2,7 @@ import { Component, computed, input, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { Position } from '../api/models';
-import { formatEur, formatIsoDate } from '../shared/format';
+import { formatEur, formatIsoDate, formatQuantity } from '../shared/format';
 import { nextExemption } from '../shared/summary';
 
 /** Open positions with their next tax-free date. Clicking a position shows its lots. */
@@ -22,7 +22,10 @@ export class PositionsTable {
   readonly rows = computed(() =>
     this.positions().map((p) => {
       const next = nextExemption(p);
-      return { position: p, nextTaxFree: next ? `${formatIsoDate(next.date)} (${next.quantity} sh)` : 'all exempt' };
+      return {
+        position: p,
+        nextTaxFree: next ? `${formatIsoDate(next.date)} (${formatQuantity(next.quantity)} sh)` : 'all exempt',
+      };
     }),
   );
 
@@ -35,4 +38,5 @@ export class PositionsTable {
 
   protected readonly formatEur = formatEur;
   protected readonly formatIsoDate = formatIsoDate;
+  protected readonly formatQuantity = formatQuantity;
 }

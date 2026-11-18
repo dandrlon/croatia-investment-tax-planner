@@ -52,7 +52,18 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let y; columns: columns" class="year-row" [class.open]="expanded().has(y.year)" (click)="toggle(y.year)"></tr>
+    <tr
+      mat-row
+      *matRowDef="let y; columns: columns"
+      class="year-row"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="expanded().has(y.year)"
+      [class.open]="expanded().has(y.year)"
+      (click)="toggle(y.year)"
+      (keydown.enter)="toggle(y.year)"
+      (keydown.space)="$event.preventDefault(); toggle(y.year)"
+    ></tr>
     <tr mat-row *matRowDef="let y; columns: ['detail']" class="detail-row" [class.open]="expanded().has(y.year)"></tr>
   </table>
 </div>

@@ -1,6 +1,14 @@
 <main class="page">
   <h1>Croatian Investment Tax Planner</h1>
 
+  <!--
+    The import bar stays outside the @switch, so moving from "empty" to "ready" after the
+    first upload, or reloading after a later one, does not destroy it and its upload result.
+  -->
+  @if (state() === 'empty' || state() === 'ready') {
+    <app-import-bar [summary]="latest()" (uploaded)="onUploaded()" />
+  }
+
   @switch (state()) {
     @case ('loading') {
       <mat-progress-bar mode="indeterminate" />
@@ -14,7 +22,6 @@
     }
 
     @case ('empty') {
-      <app-import-bar [summary]="null" (uploaded)="onUploaded()" />
       <section class="empty">
         <h2>Upload your first Trading 212 export</h2>
         <p>
@@ -25,7 +32,6 @@
     }
 
     @case ('ready') {
-      <app-import-bar [summary]="latest()" (uploaded)="onUploaded()" />
       <app-warnings-panel [warnings]="warnings()" />
       <app-summary-tiles [years]="dividends()!.years" [positions]="positions()!.positions" [year]="year" />
 

@@ -32,6 +32,18 @@ describe('DividendsTable', () => {
     expect(yearRows()[0].textContent).toContain('⚠');
   });
 
+  it('expands a year with the keyboard', async () => {
+    await render([year(2025, { positions: [vusa] })]);
+    const row = yearRows()[0];
+    expect(row.getAttribute('tabindex')).toBe('0');
+    expect(row.getAttribute('aria-expanded')).toBe('false');
+
+    row.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+    fixture.detectChanges();
+    expect(el().textContent).toContain('VUSA');
+    expect(row.getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('expands a year to its positions on click', async () => {
     await render([year(2025, { positions: [vusa] })]);
     expect(el().textContent).not.toContain('VUSA');

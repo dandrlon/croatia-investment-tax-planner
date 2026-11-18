@@ -9,6 +9,16 @@ export function formatEur(value: number): string {
   return eur.format(value);
 }
 
+const shares = new Intl.NumberFormat('en-IE', { maximumFractionDigits: 6 });
+
+/**
+ * Share counts, which are often fractional: 0.1 + 0.2 → "0.3" rather than "0.30000000000000004".
+ * Six decimals is more precision than Trading 212 shows.
+ */
+export function formatQuantity(value: number): string {
+  return shares.format(value);
+}
+
 /**
  * "2027-03-03" → "3 Mar 2027".
  * Reads the parts of the string directly instead of building a Date, because

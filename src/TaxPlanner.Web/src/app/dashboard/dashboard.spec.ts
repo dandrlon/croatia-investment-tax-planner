@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { Dashboard } from './dashboard';
+import { ImportBar } from '../import-bar/import-bar';
 import { TaxApiService } from '../api/tax-api.service';
 import { ImportResult, ImportSummary } from '../api/models';
 import { dividends, positions, vhyl, year } from '../shared/test-data';
@@ -22,7 +24,7 @@ describe('Dashboard', () => {
       getLatestImport,
       getDividends: () => of(dividends([year(2024, { taxDueEur: 0.04, warnings: ['History may be incomplete.'] })])),
       getPositions: () => of(positions([vhyl])),
-      uploadCsv: () => of<ImportResult>({ importId: 2, imported: 1, duplicates: 0, skipped: [], errors: [] }),
+      uploadCsv: () => of<ImportResult>({ importId: 2, imported: 1, duplicates: 0, skipped: [], errors: [{ line: 9, message: 'Total is in GBP.' }] }),
     };
     await TestBed.configureTestingModule({
       imports: [Dashboard],
@@ -65,6 +67,21 @@ describe('Dashboard', () => {
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button.retry')!.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.state()).toBe('ready');
+  });
+
+  it('keeps the upload result and row errors visible after the reload, including the first upload', async () => {
+    latest = of(null);
+    await render();
+    expect(fixture.componentInstance.state()).toBe('empty');
+
+    latest = of(summary);
+    const bar = fixture.debugElement.query(By.directive(ImportBar)).componentInstance as ImportBar;
+    bar.upload(new File(['x'], 'export.csv'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.state()).toBe('ready');
+    expect(text()).toContain('1 new, 0 already imported, 0 skipped, 1 errors');
+    expect(text()).toContain('Line 9: Total is in GBP.');
   });
 
   it('reloads all data after an upload', async () => {
