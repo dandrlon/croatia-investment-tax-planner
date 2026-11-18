@@ -1,0 +1,9 @@
+Action,Time,ISIN,Ticker,Name,Notes,ID,No. of shares,Price / share,Currency (Price / share),Exchange rate,Result,Currency (Result),Total,Currency (Total),Withholding tax,Currency (Withholding tax),Currency conversion fee,Currency (Currency conversion fee)
+Deposit,2024-03-01 09:00:00,,,,,DEP0001,,,,,,,1000.00,EUR,,,,
+Market buy,2024-03-15 10:15:30,IE00B3XXRP09,VUSA,Vanguard S&P 500 UCITS ETF,,EOF0000001,1.5,86.1200000000,EUR,1.00000000,,,129.18,EUR,,,,
+Limit buy,2024-04-02 15:45:10.123,US7561091049,O,Realty Income,,EOF0000002,3,52.3000000000,USD,1.07900000,,,145.62,EUR,,,0.22,EUR
+Market buy,2024-05-10 16:00:00,US3703341046,GIS,"General Mills, Inc.",,EOF0000003,2,64.0000000000,USD,1.08000000,,,118.70,EUR,,,0.18,EUR
+Dividend (Dividend),2024-06-26 07:00:00,IE00B3XXRP09,VUSA,Vanguard S&P 500 UCITS ETF,,,1.5,0.2500000000,USD,1.07000000,,,0.35,EUR,,,,
+Dividend (Dividends paid by us corporations),2024-07-15 07:00:00,US7561091049,O,Realty Income,,,3,0.2630000000,USD,1.08000000,,,0.62,EUR,0.12,USD,,
+Interest on cash,2024-07-31 23:00:00,,,,,,,,,,,,0.85,EUR,,,,
+Market sell,2024-09-02 14:00:00,US3703341046,GIS,"General Mills, Inc.",,EOF0000004,1,68.5000000000,USD,1.10000000,4.00,EUR,62.18,EUR,,,0.09,EUR
