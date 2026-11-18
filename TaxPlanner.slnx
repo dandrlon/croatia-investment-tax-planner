@@ -1,8 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/TaxPlanner.Api/TaxPlanner.Api.csproj" />
     <Project Path="src/TaxPlanner.Core/TaxPlanner.Core.csproj" />
+    <Project Path="src/TaxPlanner.Infrastructure/TaxPlanner.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/TaxPlanner.Api.Tests/TaxPlanner.Api.Tests.csproj" />
     <Project Path="tests/TaxPlanner.Core.Tests/TaxPlanner.Core.Tests.csproj" />
   </Folder>
 </Solution>

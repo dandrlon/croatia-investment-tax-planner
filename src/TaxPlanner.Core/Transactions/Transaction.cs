@@ -14,7 +14,7 @@ public enum TransactionType
 public class Transaction
 {
     public int Id { get; init; }
-    public int ImportBatchId { get; init; }
+    public int ImportBatchId { get; set; }
     public TransactionType Type { get; init; }
     public DateTimeOffset TimeUtc { get; init; }
     public string Isin { get; init; } = "";
