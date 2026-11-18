@@ -19,7 +19,12 @@ table {
   }
 }
 
-// Collapsed detail rows take no space.
+// Detail rows size to their content; collapsed ones take no space.
+// (Material gives every mat-row a fixed height, which would leave a gap.)
+.detail-row {
+  height: auto;
+}
+
 .detail-row:not(.open) td {
   padding: 0;
   border-bottom-width: 0;
