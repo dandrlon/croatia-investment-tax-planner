@@ -1,13 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TaxPlanner.Api.Services;
+using TaxPlanner.Infrastructure;
 
 namespace TaxPlanner.Api.Controllers;
 
+public record ImportSummary(int Id, string FileName, DateTimeOffset ImportedAtUtc, int ImportedCount, int DuplicateCount, int SkippedCount, int ErrorCount);
+
 [ApiController]
 [Route("api/imports")]
-public class ImportsController(ImportService imports) : ControllerBase
+public class ImportsController(ImportService imports, TaxPlannerDbContext db) : ControllerBase
 {
     private const long MaxFileBytes = 10 * 1024 * 1024;
+
+    /// <summary>The most recent import, or 204 No Content when nothing has been imported yet.</summary>
+    [HttpGet("latest")]
+    [ProducesResponseType<ImportSummary>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<ImportSummary>> Latest(CancellationToken ct)
+    {
+        var latest = await db.Imports.AsNoTracking()
+            .OrderByDescending(b => b.Id)
+            .Select(b => new ImportSummary(b.Id, b.FileName, b.ImportedAtUtc, b.ImportedCount, b.DuplicateCount, b.SkippedCount, b.ErrorCount))
+            .FirstOrDefaultAsync(ct);
+
+        return latest is null ? NoContent() : Ok(latest);
+    }
 
     /// <summary>Imports a Trading 212 transaction history CSV export.</summary>
     /// <remarks>Rows that were already imported are skipped, so the same or an overlapping export can be uploaded again.</remarks>

@@ -33,6 +33,9 @@ namespace TaxPlanner.Infrastructure.Migrations
                     b.Property<int>("DuplicateCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("ErrorCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(260)

@@ -44,6 +44,7 @@ public class ImportService(TaxPlannerDbContext db, TimeProvider time)
             ImportedCount = newRows.Count,
             DuplicateCount = parsed.Transactions.Count - newRows.Count,
             SkippedCount = parsed.Skipped.Count,
+            ErrorCount = parsed.Errors.Count,
         };
 
         // The batch and its rows are stored together or not at all. With retry-on-failure enabled,
