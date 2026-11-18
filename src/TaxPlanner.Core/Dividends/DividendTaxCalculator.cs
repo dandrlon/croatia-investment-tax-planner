@@ -59,21 +59,17 @@ public static class DividendTaxCalculator
             ? new[] { $"No verified tax rate is configured for {year.Key}. Tax for this year is not calculated." }
             : [];
 
-        return new DividendYearSummary(year.Key, rate, Money(totals.Gross), Money(totals.Withheld),
-            Money(totals.Tax), Money(totals.Credit), Money(totals.Due), positions, warnings);
+        return new DividendYearSummary(year.Key, rate, Money.Round(totals.Gross), Money.Round(totals.Withheld),
+            Money.Round(totals.Tax), Money.Round(totals.Credit), Money.Round(totals.Due), positions, warnings);
     }
 
     private static DividendPositionSummary SummarisePosition(List<Payment> payments, decimal? rate)
     {
         var first = payments[0].Transaction;
         var totals = Totals.Of(payments, rate);
-        return new DividendPositionSummary(first.Isin, first.Ticker, first.Name, Money(totals.Gross),
-            Money(totals.Withheld), Money(totals.Tax), Money(totals.Credit), Money(totals.Due));
+        return new DividendPositionSummary(first.Isin, first.Ticker, first.Name, Money.Round(totals.Gross),
+            Money.Round(totals.Withheld), Money.Round(totals.Tax), Money.Round(totals.Credit), Money.Round(totals.Due));
     }
-
-    private static decimal Money(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
-
-    private static decimal? Money(decimal? value) => value is null ? null : Money(value.Value);
 
     private sealed record Payment(Transaction Transaction, int Year)
     {
