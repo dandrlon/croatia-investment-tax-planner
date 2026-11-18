@@ -15,13 +15,19 @@ services:
 
   api:
     build: .
-    ports:
-      - "8080:8080"
+    # No host port: the web service forwards /api, /swagger and /openapi to it.
     environment:
       ConnectionStrings__TaxPlanner: "Server=db;Database=TaxPlanner;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
     depends_on:
       db:
         condition: service_healthy
+
+  web:
+    build: ./src/TaxPlanner.Web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
 
 volumes:
   mssql-data:

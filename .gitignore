@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Local secrets for Docker Compose
 .env
+
+# Local brainstorming and plan-execution scratch
+.superpowers/

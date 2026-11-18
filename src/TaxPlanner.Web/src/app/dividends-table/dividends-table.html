@@ -1,0 +1,69 @@
+<div class="scroll">
+  <table mat-table [dataSource]="sorted()" multiTemplateDataRows>
+    <ng-container matColumnDef="year">
+      <th mat-header-cell *matHeaderCellDef>Year</th>
+      <td mat-cell *matCellDef="let y">{{ y.year }}</td>
+    </ng-container>
+    <ng-container matColumnDef="gross">
+      <th mat-header-cell *matHeaderCellDef class="num">Gross</th>
+      <td mat-cell *matCellDef="let y" class="num">{{ money(y.grossEur) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="withheld">
+      <th mat-header-cell *matHeaderCellDef class="num">Withheld abroad</th>
+      <td mat-cell *matCellDef="let y" class="num">{{ money(y.withheldEur) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="croatianTax">
+      <th mat-header-cell *matHeaderCellDef class="num">Croatian tax</th>
+      <td mat-cell *matCellDef="let y" class="num">{{ money(y.croatianTaxEur) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="taxDue">
+      <th mat-header-cell *matHeaderCellDef class="num">Tax due</th>
+      <td mat-cell *matCellDef="let y" class="num">
+        {{ money(y.taxDueEur) }}
+        @if (y.warnings.length > 0) {
+          <span class="warn" [title]="y.warnings.join(' ')">⚠</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="detail">
+      <td mat-cell *matCellDef="let y" [attr.colspan]="columns.length">
+        @if (expanded().has(y.year)) {
+          <table class="detail">
+            <tr>
+              <th>Ticker</th>
+              <th>Name</th>
+              <th class="num">Gross</th>
+              <th class="num">Withheld</th>
+              <th class="num">Tax due</th>
+            </tr>
+            @for (p of y.positions; track p.isin) {
+              <tr>
+                <td>{{ p.ticker }}</td>
+                <td>{{ p.name }}</td>
+                <td class="num">{{ money(p.grossEur) }}</td>
+                <td class="num">{{ money(p.withheldEur) }}</td>
+                <td class="num">{{ money(p.taxDueEur) }}</td>
+              </tr>
+            }
+          </table>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let y; columns: columns"
+      class="year-row"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="expanded().has(y.year)"
+      [class.open]="expanded().has(y.year)"
+      (click)="toggle(y.year)"
+      (keydown.enter)="toggle(y.year)"
+      (keydown.space)="$event.preventDefault(); toggle(y.year)"
+    ></tr>
+    <tr mat-row *matRowDef="let y; columns: ['detail']" class="detail-row" [class.open]="expanded().has(y.year)"></tr>
+  </table>
+</div>

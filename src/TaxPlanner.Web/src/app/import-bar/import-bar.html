@@ -1,0 +1,41 @@
+<section class="bar">
+  <div class="info">
+    @if (summary(); as s) {
+      <div>Last import: <strong>{{ s.fileName }}</strong></div>
+      <div class="meta">
+        {{ formatTimestamp(s.importedAtUtc) }} ·
+        {{ s.importedCount }} new · {{ s.duplicateCount }} already imported · {{ s.skippedCount }} skipped ·
+        <span [class.warn]="s.errorCount > 0">{{ s.errorCount }} errors</span>
+      </div>
+    } @else {
+      <div>No CSV imported yet.</div>
+    }
+  </div>
+
+  <input #fileInput type="file" accept=".csv" hidden (change)="onFileSelected($event)" />
+  <button mat-flat-button type="button" [disabled]="uploading()" (click)="fileInput.click()">Upload new CSV</button>
+</section>
+
+@if (uploading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (error(); as message) {
+  <p class="message error" role="alert">{{ message }}</p>
+}
+
+@if (lastResult(); as r) {
+  <div class="message" role="status">
+    <p>
+      {{ r.imported }} new, {{ r.duplicates }} already imported, {{ r.skipped.length }} skipped,
+      <span [class.warn]="r.errors.length > 0">{{ r.errors.length }} errors</span>
+    </p>
+    @if (r.errors.length > 0) {
+      <ul>
+        @for (e of r.errors; track e.line) {
+          <li>Line {{ e.line }}: {{ e.message }}</li>
+        }
+      </ul>
+    }
+  </div>
+}

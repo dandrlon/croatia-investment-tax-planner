@@ -110,6 +110,46 @@ public class ImportsApiTests(ApiFactory factory) : IAsyncLifetime
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    private record Summary(int Id, string FileName, DateTimeOffset ImportedAtUtc, int ImportedCount, int DuplicateCount, int SkippedCount, int ErrorCount);
+
+    private async Task<Summary> LatestAsync()
+    {
+        var response = await _client.GetAsync("/api/imports/latest", Ct);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<Summary>(Ct))!;
+    }
+
+    [Fact]
+    public async Task Latest_import_returns_204_when_nothing_imported()
+        => Assert.Equal(HttpStatusCode.NoContent, (await _client.GetAsync("/api/imports/latest", Ct)).StatusCode);
+
+    [Fact]
+    public async Task Latest_import_returns_most_recent_batch()
+    {
+        await ImportAsync(ApiFactory.SampleCsv);
+        var second = await ImportAsync(ApiFactory.SampleCsv);
+
+        var latest = await LatestAsync();
+        Assert.Equal(second.ImportId, latest.Id);
+        Assert.Equal("export.csv", latest.FileName);
+        Assert.Equal(ApiFactory.Now, latest.ImportedAtUtc);
+        Assert.Equal(0, latest.ImportedCount);
+        Assert.Equal(6, latest.DuplicateCount);
+        Assert.Equal(2, latest.SkippedCount);
+        Assert.Equal(0, latest.ErrorCount);
+    }
+
+    [Fact]
+    public async Task Latest_import_counts_row_errors()
+    {
+        var l = SampleLines;
+        await ImportAsync(string.Join('\n', l[0], l[2].Replace("129.18,EUR", "129.18,GBP"), l[3]));
+
+        var latest = await LatestAsync();
+        Assert.Equal(1, latest.ErrorCount);
+        Assert.Equal(1, latest.ImportedCount);
+    }
+
     [Fact]
     public async Task File_missing_required_column_returns_400_problem_details()
     {
